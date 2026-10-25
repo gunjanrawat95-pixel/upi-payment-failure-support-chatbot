@@ -50,7 +50,36 @@ guidance = {
     }
 }
 
-if problem in guidance:
+
+if problem == "Money debited, receiver not credited":
+    recipient_type = st.radio(
+        "Who were you paying?",
+        ["A merchant or shop", "Another person"]
+    )
+
+    st.subheader("Money was debited, but the receiver hasn't received it")
+
+    if recipient_type == "A merchant or shop":
+        steps = [
+            "Check the transaction status in your UPI app.",
+            "Ask the merchant to verify the payment in their own account or payment system.",
+            "Keep the UPI transaction reference number and payment receipt.",
+            "If the payment remains unresolved, raise a complaint through your UPI app or bank's official support channel.",
+            "Avoid paying again until you have clarified the original transaction."
+        ]
+    else:
+        steps = [
+            "Check the transaction status and UPI ID or phone number you paid.",
+            "Ask the recipient to check their bank account, not just their notification.",
+            "Keep the transaction reference number and payment receipt.",
+            "If the recipient still hasn't received the money, contact your bank or UPI app through its official support channel.",
+            "Avoid sending the payment again until you have clarified the original transaction."
+        ]
+
+    for step in steps:
+        st.write("•", step)
+
+elif problem in guidance:
     st.subheader(guidance[problem]["title"])
 
     for step in guidance[problem]["steps"]:
@@ -59,5 +88,5 @@ if problem in guidance:
 else:
     st.info(
         "Guidance for this situation is coming next. "
-        "Choose Payment is pending to try the first completed scenario."
+        "Choose a supported payment problem to see its steps."
     )
