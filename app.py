@@ -27,6 +27,7 @@ problem = st.selectbox(
     ]
 )
 
+
 guidance = {
     "Payment is pending": {
         "title": "Your payment is still pending",
@@ -35,6 +36,16 @@ guidance = {
             "Check your bank account statement to confirm whether money was debited.",
             "Avoid making the same payment again until you clarify the status.",
             "If it remains unresolved, raise a complaint in your UPI app or contact your bank using its official support channel."
+        ]
+    },
+    "Payment failed": {
+        "title": "Your payment failed",
+        "steps": [
+            "Open the transaction details and confirm that the status is Failed.",
+            "Check your bank statement to see whether any money was debited.",
+            "If no money was debited, confirm the recipient and payment details before trying again.",
+            "If money was debited, keep the transaction reference and raise a complaint through your UPI app or bank's official support channel.",
+            "Do not assume a refund has happened until you verify your account."
         ]
     }
 }
