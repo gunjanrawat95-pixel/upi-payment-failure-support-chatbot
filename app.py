@@ -9,9 +9,7 @@ st.set_page_config(
 
 st.title("💳 UPI Resolution Navigator")
 
-st.write(
-    "Get guidance for common UPI payment problems."
-)
+st.write("Get guidance for common UPI payment problems.")
 
 st.info(
     "This app provides general guidance. "
@@ -29,5 +27,26 @@ problem = st.selectbox(
     ]
 )
 
-st.write("### Your selected problem")
-st.write(problem)
+guidance = {
+    "Payment is pending": {
+        "title": "Your payment is still pending",
+        "steps": [
+            "Open your UPI app and check the transaction status.",
+            "Check your bank account statement to confirm whether money was debited.",
+            "Avoid making the same payment again until you clarify the status.",
+            "If it remains unresolved, raise a complaint in your UPI app or contact your bank using its official support channel."
+        ]
+    }
+}
+
+if problem in guidance:
+    st.subheader(guidance[problem]["title"])
+
+    for step in guidance[problem]["steps"]:
+        st.write("•", step)
+
+else:
+    st.info(
+        "Guidance for this situation is coming next. "
+        "Choose Payment is pending to try the first completed scenario."
+    )
