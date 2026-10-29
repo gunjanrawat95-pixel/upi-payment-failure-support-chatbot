@@ -107,9 +107,23 @@ elif problem == "Money debited, receiver not credited":
 
     st.subheader(result["title"])
 
-    for step in result["recipients"][recipient_type]:
-        st.write("•", step)
+   
+for index, step in enumerate(
+    result["recipients"][recipient_type], start=1
+):
+    with st.expander(f"Step {index}: {step}"):
+        st.write(step)
+```
 
+### 3. Commit and test
+
+1. Commit your changes to `main`.
+2. Wait for Streamlit to update.
+3. Test **Payment is pending** and **Money debited, receiver not credited**.
+
+You should see numbered, expandable steps instead of a long list of bullets.
+
+If anything looks wrong, send me a screenshot before making more changes. We'll keep building this hands-on, one improvement at a time.
 
     
 elif get_guidance(problem):
@@ -117,8 +131,11 @@ elif get_guidance(problem):
 
     st.subheader(result["title"])
 
-    for step in result["steps"]:
-        st.write("•", step)
+    
+for index, step in enumerate(result["steps"], start=1):
+    with st.expander(f"Step {index}: {step}"):
+        st.write(step)
+
 
 
 else:
