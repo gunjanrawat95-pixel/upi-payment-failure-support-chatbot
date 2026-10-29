@@ -40,7 +40,17 @@ GUIDANCE = {
             "If the issue remains unresolved, contact your bank or UPI app through its official support channel."
         ],
     },
-
+    
+    "Suspected fraud": {
+        "title": "Act promptly if you suspect an unauthorized UPI transaction",
+        "steps": [
+            "Contact your bank immediately using its official app, website, or phone number.",
+            "Never share your UPI PIN, OTP, or banking password.",
+            "For suspected financial cyber fraud in India, call 1930 promptly and report it at https://cybercrime.gov.in/.",
+            "Save transaction IDs, timestamps, messages, screenshots, and your bank complaint reference.",
+            "Do not pay anyone who promises to recover your money for an upfront fee."
+        ],
+    },
 }
 
 
