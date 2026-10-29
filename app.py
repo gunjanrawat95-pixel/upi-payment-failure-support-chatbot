@@ -62,7 +62,26 @@ guidance = {
 }
 
 
-if problem == "Money debited, receiver not credited":
+
+if problem == "Suspected fraud":
+    st.error(
+        "Act promptly if you suspect an unauthorized UPI transaction."
+    )
+
+    st.subheader("Steps to take now")
+
+    steps = [
+        "Contact your bank immediately using its official app, website, or phone number. Report the unauthorized transaction and ask what protective steps are available.",
+        "If safe to do so, secure your account and UPI app. Never share your UPI PIN, OTP, or banking password with anyone.",
+        "For suspected financial cyber fraud in India, call 1930 promptly and report it at https://cybercrime.gov.in/.",
+        "Save transaction IDs, timestamps, messages, screenshots, and your bank complaint reference.",
+        "Do not pay anyone who promises to recover your money for an upfront fee."
+    ]
+
+    for step in steps:
+        st.write("•", step)
+
+elif problem == "Money debited, receiver not credited":
     recipient_type = st.radio(
         "Who were you paying?",
         ["A merchant or shop", "Another person"]
