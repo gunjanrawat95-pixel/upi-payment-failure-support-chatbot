@@ -71,3 +71,8 @@ else:
         for index, step in enumerate(result["steps"], start=1):
             with st.expander(f"Step {index}: {step}"):
                 st.write(step)
+        if problem == "Suspected fraud":
+    st.markdown(
+        "[Report suspected cybercrime at the official Indian portal](https://cybercrime.gov.in/)"
+    )
+    st.markdown("**Cyber financial fraud helpline: 1930**")
