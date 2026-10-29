@@ -29,6 +29,18 @@ GUIDANCE = {
             "Do not assume a duplicate payment will be refunded automatically."
         ],
     },
+    
+    "Money debited, receiver not credited": {
+        "title": "Money was debited, but the receiver has not received it",
+        "steps": [
+            "Check the transaction status in your UPI app.",
+            "Check your bank statement and save the transaction reference number.",
+            "Ask the recipient or merchant to check their account or payment system.",
+            "Avoid paying again until you clarify the original transaction.",
+            "If the issue remains unresolved, contact your bank or UPI app through its official support channel."
+        ],
+    },
+
 }
 
 
