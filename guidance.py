@@ -18,6 +18,17 @@ GUIDANCE = {
             "Do not assume a refund has occurred until you verify your account.",
         ],
     },
+    
+    "Possible duplicate payment": {
+        "title": "You may have paid more than once",
+        "steps": [
+            "Open your UPI app and review the transaction history.",
+            "Compare transaction reference numbers, amounts, and timestamps.",
+            "Check your bank statement to confirm whether money was debited more than once.",
+            "If two separate successful debits appear, save both transaction references and contact your UPI app or bank through its official support channel.",
+            "Do not assume a duplicate payment will be refunded automatically."
+        ],
+    },
 }
 
 
