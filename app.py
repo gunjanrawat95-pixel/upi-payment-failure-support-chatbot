@@ -9,9 +9,22 @@ st.set_page_config(
     layout="centered"
 )
 
+
 st.title("💳 UPI Resolution Navigator")
 
-st.write("Get guidance for common UPI payment problems.")
+st.markdown(
+    """
+    Find clear next steps for common UPI payment problems.
+
+    Select what happened below to get guidance tailored to your situation.
+    """
+)
+
+st.caption(
+    "Prototype • General guidance only • No access to live bank transactions"
+)
+
+st.divider()
 
 st.info(
     "This app provides general guidance. "
