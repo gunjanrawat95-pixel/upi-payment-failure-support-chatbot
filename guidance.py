@@ -30,15 +30,25 @@ GUIDANCE = {
         ],
     },
     
+    
     "Money debited, receiver not credited": {
         "title": "Money was debited, but the receiver has not received it",
-        "steps": [
-            "Check the transaction status in your UPI app.",
-            "Check your bank statement and save the transaction reference number.",
-            "Ask the recipient or merchant to check their account or payment system.",
-            "Avoid paying again until you clarify the original transaction.",
-            "If the issue remains unresolved, contact your bank or UPI app through its official support channel."
-        ],
+        "recipients": {
+            "A merchant or shop": [
+                "Check the transaction status in your UPI app.",
+                "Ask the merchant to verify the payment in their account or payment system.",
+                "Keep the transaction reference number and payment receipt.",
+                "Avoid paying again until you clarify the original transaction.",
+                "If unresolved, contact your bank or UPI app through its official support channel.",
+            ],
+            "Another person": [
+                "Check the transaction status and confirm the UPI ID or phone number you paid.",
+                "Ask the recipient to check their bank account, not only their notifications.",
+                "Keep the transaction reference number and payment receipt.",
+                "Avoid sending the payment again until you clarify the original transaction.",
+                "If unresolved, contact your bank or UPI app through its official support channel.",
+            ],
+        },
     },
     
     "Suspected fraud": {
