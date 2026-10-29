@@ -83,35 +83,22 @@ if problem == "Suspected fraud":
     for step in steps:
         st.write("•", step)
 
+
 elif problem == "Money debited, receiver not credited":
+    result = get_guidance(problem)
+
     recipient_type = st.radio(
         "Who were you paying?",
         ["A merchant or shop", "Another person"]
     )
 
-    st.subheader("Money was debited, but the receiver hasn't received it")
+    st.subheader(result["title"])
 
-    if recipient_type == "A merchant or shop":
-        steps = [
-            "Check the transaction status in your UPI app.",
-            "Ask the merchant to verify the payment in their own account or payment system.",
-            "Keep the UPI transaction reference number and payment receipt.",
-            "If the payment remains unresolved, raise a complaint through your UPI app or bank's official support channel.",
-            "Avoid paying again until you have clarified the original transaction."
-        ]
-    else:
-        steps = [
-            "Check the transaction status and UPI ID or phone number you paid.",
-            "Ask the recipient to check their bank account, not just their notification.",
-            "Keep the transaction reference number and payment receipt.",
-            "If the recipient still hasn't received the money, contact your bank or UPI app through its official support channel.",
-            "Avoid sending the payment again until you have clarified the original transaction."
-        ]
-
-    for step in steps:
+    for step in result["recipients"][recipient_type]:
         st.write("•", step)
 
 
+    
 elif get_guidance(problem):
     result = get_guidance(problem)
 
