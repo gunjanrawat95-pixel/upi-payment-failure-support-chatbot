@@ -1,6 +1,8 @@
 
 import streamlit as st
 
+from guidance import get_guidance
+
 st.set_page_config(
     page_title="UPI Resolution Navigator",
     page_icon="💳",
@@ -109,11 +111,15 @@ elif problem == "Money debited, receiver not credited":
     for step in steps:
         st.write("•", step)
 
-elif problem in guidance:
-    st.subheader(guidance[problem]["title"])
 
-    for step in guidance[problem]["steps"]:
+elif get_guidance(problem):
+    result = get_guidance(problem)
+
+    st.subheader(result["title"])
+
+    for step in result["steps"]:
         st.write("•", step)
+
 
 else:
     st.info(
