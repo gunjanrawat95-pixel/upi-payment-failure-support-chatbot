@@ -21,10 +21,18 @@ KEYWORDS = {
         "paid twice", "charged twice"
     ],
     "Suspected fraud": [
-        "fraud", "scam", "unauthorized",
-        "unknown transaction", "strange transaction",
-        "money stolen"
-    ],
+    "fraud",
+    "scam",
+    "unauthorized",
+    "unknown transaction",
+    "strange transaction",
+    "money stolen",
+    "stole money",
+    "someone stole",
+    "stolen from my account",
+    "not my transaction",
+    "without my permission"
+],
 }
 
 
