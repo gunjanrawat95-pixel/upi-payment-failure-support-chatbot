@@ -41,6 +41,29 @@ problem = st.selectbox(
     ]
 )
 
+from retrieval import find_matching_scenario
+
+st.divider()
+
+st.subheader("Or describe your payment problem")
+
+question = st.text_input(
+    "What happened?",
+    placeholder="e.g. My account was charged but the shop didn't receive the money"
+)
+
+if question:
+    matched_problem = find_matching_scenario(question)
+
+    if matched_problem:
+        st.success(f"Matched scenario: {matched_problem}")
+        problem = matched_problem
+    else:
+        st.warning(
+            "I couldn't confidently match that question. "
+            "Please select a scenario from the dropdown above."
+        )
+
 if problem == "Money debited, receiver not credited":
     result = get_guidance(problem)
 
