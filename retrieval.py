@@ -2,25 +2,38 @@
 from guidance import GUIDANCE
 
 
+KEYWORDS = {
+    "Payment is pending": [
+        "pending", "processing", "waiting", "stuck",
+        "not completed", "taking too long"
+    ],
+    "Payment failed": [
+        "failed", "failure", "unsuccessful",
+        "declined", "rejected"
+    ],
+    "Money debited, receiver not credited": [
+        "debited", "charged", "deducted",
+        "receiver", "merchant", "shop",
+        "not received", "not credited"
+    ],
+    "Possible duplicate payment": [
+        "duplicate", "twice", "two payments",
+        "paid twice", "charged twice"
+    ],
+    "Suspected fraud": [
+        "fraud", "scam", "unauthorized",
+        "unknown transaction", "strange transaction",
+        "money stolen"
+    ],
+}
+
+
 def find_matching_scenario(question):
     question = question.lower()
 
-    keywords = {
-        "Payment is pending": ["pending", "processing", "waiting"],
-        "Payment failed": ["failed", "failure", "unsuccessful"],
-        "Money debited, receiver not credited": [
-            "debited", "charged", "receiver", "merchant", "shop"
-        ],
-        "Possible duplicate payment": [
-            "duplicate", "twice", "two payments", "paid twice"
-        ],
-        "Suspected fraud": [
-            "fraud", "scam", "unauthorized", "unknown transaction"
-        ],
-    }
-
-    for scenario, words in keywords.items():
-        if any(word in question for word in words):
-            return scenario
+    for scenario, words in KEYWORDS.items():
+        for word in words:
+            if word in question:
+                return scenario
 
     return None
