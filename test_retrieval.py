@@ -30,3 +30,18 @@ def test_unknown_question():
     assert find_matching_scenario(
         "How do I change my phone wallpaper?"
     ) is None
+
+def test_charged_twice_matches_duplicate_payment():
+    assert find_matching_scenario("I was charged twice") == "Possible duplicate payment"
+
+
+def test_paid_twice_matches_duplicate_payment():
+    assert find_matching_scenario("I paid twice for the same order") == "Possible duplicate payment"
+
+
+def test_stole_money_matches_fraud():
+    assert find_matching_scenario("Someone stole money from my account") == "Suspected fraud"
+
+
+def test_without_permission_matches_fraud():
+    assert find_matching_scenario("Someone used my account without my permission") == "Suspected fraud"
