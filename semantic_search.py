@@ -34,16 +34,17 @@ index.add(
 )
 
 
-def semantic_search(question, top_k=1):
 
-    # Convert user question into an embedding
+def semantic_search(question, top_k=1, min_score=0.35):
+
+    # Convert the user's question into an embedding
     question_embedding = model.encode(
         [question],
         convert_to_numpy=True,
         normalize_embeddings=True
     )
 
-    # Search for the closest knowledge records
+    # Search for similar knowledge records
     scores, indices = index.search(
         question_embedding.astype("float32"),
         min(top_k, len(KNOWLEDGE_BASE))
@@ -52,6 +53,10 @@ def semantic_search(question, top_k=1):
     results = []
 
     for score, idx in zip(scores[0], indices[0]):
+
+        # Ignore invalid or low-scoring matches
+        if idx == -1 or score < min_score:
+            continue
 
         results.append({
             "title": KNOWLEDGE_BASE[idx]["title"],
