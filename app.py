@@ -2,6 +2,8 @@
 import streamlit as st
 
 from guidance import get_guidance
+from semantic_search import semantic_search
+
 
 st.set_page_config(
     page_title="UPI Resolution Navigator",
@@ -41,8 +43,6 @@ problem = st.selectbox(
     ]
 )
 
-from retrieval import find_matching_scenario
-
 st.divider()
 
 st.subheader("Or describe your payment problem")
@@ -52,19 +52,39 @@ question = st.text_input(
     placeholder="e.g. My account was charged but the shop didn't receive the money"
 )
 
-if question:
-    matched_problem = find_matching_scenario(question)
+if question.strip():
 
-    if matched_problem:
-        st.success(f"Matched scenario: {matched_problem}")
-        problem = matched_problem
-    else:
-        st.warning(
-            "I couldn't confidently match that question. "
-            "Please select a scenario from the dropdown above."
+    results = semantic_search(question, top_k=1)
+
+    if results:
+        best_match = results[0]
+
+        problem = best_match["category"]
+
+        st.success(
+            f"Matched scenario: {best_match['title']}"
         )
 
+        st.caption(
+            f"Similarity score: {best_match['score']:.3f}"
+        )
+
+    else:
+        st.warning(
+            "I couldn't confidently find matching UPI guidance. "
+            "Please try describing the payment problem differently "
+            "or select a scenario from the dropdown."
+        )
+
+        problem = None
+
+
+if problem is None:
+    st.stop()
+
+
 if problem == "Money debited, receiver not credited":
+
     result = get_guidance(problem)
 
     recipient_type = st.radio(
@@ -81,23 +101,31 @@ if problem == "Money debited, receiver not credited":
             st.write(step)
 
 else:
+
     result = get_guidance(problem)
 
     if result is None:
         st.info("Guidance for this situation is coming next.")
+
     else:
+
         if problem == "Suspected fraud":
             st.error(result["title"])
         else:
             st.subheader(result["title"])
 
-       
-        for index, step in enumerate(result["steps"], start=1):
+        for index, step in enumerate(
+            result["steps"], start=1
+        ):
             with st.expander(f"Step {index}: {step}"):
                 st.write(step)
 
         if problem == "Suspected fraud":
+
             st.markdown(
                 "[Report suspected cybercrime at the official Indian portal](https://cybercrime.gov.in/)"
             )
-            st.markdown("**Cyber financial fraud helpline: 1930**")
+
+            st.markdown(
+                "**Cyber financial fraud helpline: 1930**"
+            )
