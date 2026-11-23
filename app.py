@@ -59,7 +59,6 @@ if question.strip():
 
     if results:
         best_match = results[0]
-
         problem = best_match["category"]
 
         st.success(
@@ -69,17 +68,7 @@ if question.strip():
         st.caption(
             f"Similarity score: {best_match['score']:.3f}"
         )
-                st.subheader("Gemini's Answer")
 
-        with st.spinner("Gemini is preparing your answer..."):
-            answer = ask_gemini(
-                question,
-                best_match["content"]
-            )
-
-        st.write(answer)
-
-    
     else:
         st.warning(
             "I couldn't confidently find matching UPI guidance. "
@@ -94,9 +83,15 @@ if problem is None:
     st.stop()
 
 
-if problem == "Money debited, receiver not credited":
+# Display existing UPI guidance first
+result = get_guidance(problem)
 
-    result = get_guidance(problem)
+if result is None:
+    st.info("Guidance for this situation is coming next.")
+    st.stop()
+
+
+if problem == "Money debited, receiver not credited":
 
     recipient_type = st.radio(
         "Who were you paying?",
@@ -105,38 +100,53 @@ if problem == "Money debited, receiver not credited":
 
     st.subheader(result["title"])
 
-    for index, step in enumerate(
-        result["recipients"][recipient_type], start=1
-    ):
-        with st.expander(f"Step {index}: {step}"):
-            st.write(step)
+    guidance_steps = result["recipients"][recipient_type]
 
 else:
 
-    result = get_guidance(problem)
-
-    if result is None:
-        st.info("Guidance for this situation is coming next.")
-
+    if problem == "Suspected fraud":
+        st.error(result["title"])
     else:
+        st.subheader(result["title"])
 
-        if problem == "Suspected fraud":
-            st.error(result["title"])
-        else:
-            st.subheader(result["title"])
+    guidance_steps = result["steps"]
 
-        for index, step in enumerate(
-            result["steps"], start=1
-        ):
-            with st.expander(f"Step {index}: {step}"):
-                st.write(step)
 
-        if problem == "Suspected fraud":
+for index, step in enumerate(guidance_steps, start=1):
+    with st.expander(f"Step {index}: {step}"):
+        st.write(step)
 
-            st.markdown(
-                "[Report suspected cybercrime at the official Indian portal](https://cybercrime.gov.in/)"
+
+# Keep urgent fraud reporting information independent of Gemini
+if problem == "Suspected fraud":
+
+    st.markdown(
+        "[Report suspected cybercrime at the official Indian portal](https://cybercrime.gov.in/)"
+    )
+
+    st.markdown(
+        "**Cyber financial fraud helpline: 1930**"
+    )
+
+
+# Ask Gemini only when a matching knowledge-base result exists
+if question.strip() and problem != "Suspected fraud":
+
+    st.divider()
+    st.subheader("🤖 Gemini's Answer")
+
+    with st.spinner("Gemini is preparing your answer..."):
+
+        try:
+            answer = ask_gemini(
+                question,
+                best_match["content"]
             )
 
-            st.markdown(
-                "**Cyber financial fraud helpline: 1930**"
+            st.write(answer)
+
+        except Exception:
+            st.error(
+                "Gemini could not respond right now. "
+                "Please use the troubleshooting guidance above."
             )
