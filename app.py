@@ -53,6 +53,8 @@ question = st.text_input(
     placeholder="e.g. My account was charged but the shop didn't receive the money"
 )
 
+best_match = None
+
 if question.strip():
 
     results = semantic_search(question, top_k=1)
@@ -83,7 +85,7 @@ if problem is None:
     st.stop()
 
 
-# Display existing UPI guidance first
+# Retrieve existing troubleshooting guidance
 result = get_guidance(problem)
 
 if result is None:
@@ -91,6 +93,7 @@ if result is None:
     st.stop()
 
 
+# Display guidance based on the selected scenario
 if problem == "Money debited, receiver not credited":
 
     recipient_type = st.radio(
@@ -112,12 +115,14 @@ else:
     guidance_steps = result["steps"]
 
 
+# Display troubleshooting steps
 for index, step in enumerate(guidance_steps, start=1):
+
     with st.expander(f"Step {index}: {step}"):
         st.write(step)
 
 
-# Keep urgent fraud reporting information independent of Gemini
+# Urgent fraud information does not depend on Gemini
 if problem == "Suspected fraud":
 
     st.markdown(
@@ -129,24 +134,33 @@ if problem == "Suspected fraud":
     )
 
 
-# Ask Gemini only when a matching knowledge-base result exists
-if question.strip() and problem != "Suspected fraud":
+# Generate an AI answer only when relevant guidance is found
+if question.strip() and best_match is not None and problem != "Suspected fraud":
 
     st.divider()
+
     st.subheader("🤖 Gemini's Answer")
 
-    with st.spinner("Gemini is preparing your answer..."):
+    try:
 
-        try:
+        with st.spinner("Gemini is preparing your answer..."):
+
             answer = ask_gemini(
                 question,
                 best_match["content"]
             )
 
+        if answer:
             st.write(answer)
+        else:
+            st.warning("Gemini returned an empty response.")
 
-        except Exception:
-            st.error(
-                "Gemini could not respond right now. "
-                "Please use the troubleshooting guidance above."
-            )
+    except Exception as error:
+
+        st.error(
+            f"Gemini error: {type(error).__name__}: {error}"
+        )
+
+        st.info(
+            "Your existing troubleshooting guidance is still available above."
+        )
