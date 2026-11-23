@@ -3,6 +3,7 @@ import streamlit as st
 
 from guidance import get_guidance
 from semantic_search import semantic_search
+from llm_providers import ask_gemini
 
 
 st.set_page_config(
@@ -68,7 +69,17 @@ if question.strip():
         st.caption(
             f"Similarity score: {best_match['score']:.3f}"
         )
+                st.subheader("Gemini's Answer")
 
+        with st.spinner("Gemini is preparing your answer..."):
+            answer = ask_gemini(
+                question,
+                best_match["content"]
+            )
+
+        st.write(answer)
+
+    
     else:
         st.warning(
             "I couldn't confidently find matching UPI guidance. "
