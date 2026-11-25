@@ -18,7 +18,7 @@ st.markdown(
     """
     Find clear next steps for common UPI payment problems.
 
-    Select what happened below to get guidance tailored to your situation.
+    Describe your payment issue and get guidance from the UPI Support Assistant.
     """
 )
 
@@ -46,7 +46,7 @@ problem = st.selectbox(
 
 st.divider()
 
-st.subheader("Or describe your payment problem")
+st.subheader("Describe your payment problem")
 
 question = st.text_input(
     "What happened?",
@@ -54,6 +54,8 @@ question = st.text_input(
 )
 
 best_match = None
+result = None
+recipient_type = None
 
 if question.strip():
 
@@ -63,37 +65,33 @@ if question.strip():
         best_match = results[0]
         problem = best_match["category"]
 
-        st.success(
-            f"Matched scenario: {best_match['title']}"
+        st.caption(
+            f"Identified issue: {best_match['title']}"
         )
 
-        st.caption(
-            f"Similarity score: {best_match['score']:.3f}"
-        )
+        result = get_guidance(problem)
 
     else:
+        problem = None
         st.warning(
             "I couldn't confidently find matching UPI guidance. "
-            "Please try describing the payment problem differently "
-            "or select a scenario from the dropdown."
+            "Please describe the issue differently or select a scenario below."
         )
 
-        problem = None
+else:
+    result = get_guidance(problem)
 
 
 if problem is None:
     st.stop()
 
 
-# Retrieve existing troubleshooting guidance
-result = get_guidance(problem)
-
 if result is None:
     st.info("Guidance for this situation is coming next.")
     st.stop()
 
 
-# Display guidance based on the selected scenario
+# Collect recipient type for merchant-related problems
 if problem == "Money debited, receiver not credited":
 
     recipient_type = st.radio(
@@ -101,66 +99,91 @@ if problem == "Money debited, receiver not credited":
         ["A merchant or shop", "Another person"]
     )
 
-    st.subheader(result["title"])
 
-    guidance_steps = result["recipients"][recipient_type]
-
-else:
-
-    if problem == "Suspected fraud":
-        st.error(result["title"])
-    else:
-        st.subheader(result["title"])
-
-    guidance_steps = result["steps"]
-
-
-# Display troubleshooting steps
-for index, step in enumerate(guidance_steps, start=1):
-
-    with st.expander(f"Step {index}: {step}"):
-        st.write(step)
-
-
-# Urgent fraud information does not depend on Gemini
+# Fraud guidance is displayed immediately and independently of AI
 if problem == "Suspected fraud":
+
+    st.error(result["title"])
+
+    for index, step in enumerate(result["steps"], start=1):
+        st.write(f"**{index}.** {step}")
 
     st.markdown(
         "[Report suspected cybercrime at the official Indian portal](https://cybercrime.gov.in/)"
     )
 
-    st.markdown(
-        "**Cyber financial fraud helpline: 1930**"
-    )
+    st.markdown("**Cyber financial fraud helpline: 1930**")
 
 
-# Generate an AI answer only when relevant guidance is found
-if question.strip() and best_match is not None and problem != "Suspected fraud":
+# For typed questions, provide one integrated conversational answer
+elif question.strip() and best_match is not None:
 
     st.divider()
 
-    st.subheader("🤖 Gemini's Answer")
+    st.subheader("🤖 UPI Support Assistant")
+
+    context = best_match["content"]
+
+    if problem == "Money debited, receiver not credited":
+        context += "\n\nAdditional recipient-specific guidance:\n"
+        context += "\n".join(
+            result["recipients"][recipient_type]
+        )
+    else:
+        context += "\n\nAdditional troubleshooting guidance:\n"
+        context += "\n".join(result["steps"])
 
     try:
 
-        with st.spinner("Gemini is preparing your answer..."):
+        with st.spinner("Preparing your guidance..."):
 
             answer = ask_gemini(
                 question,
-                best_match["content"]
+                context
             )
 
-        if answer:
-            st.write(answer)
-        else:
-            st.warning("Gemini returned an empty response.")
+        st.write(answer)
+
+        st.caption(
+            "AI-generated using retrieved UPI guidance. "
+            "Please verify important actions with your bank or UPI app."
+        )
 
     except Exception as error:
 
-        st.error(
-            f"Gemini error: {type(error).__name__}: {error}"
+        st.warning(
+            "The AI assistant is temporarily unavailable. "
+            "Here are the available troubleshooting steps instead."
         )
 
-        st.info(
-            "Your existing troubleshooting guidance is still available above."
+        st.caption(
+            f"Technical detail: {type(error).__name__}: {error}"
         )
+
+        if problem == "Money debited, receiver not credited":
+            fallback_steps = result["recipients"][recipient_type]
+        else:
+            fallback_steps = result["steps"]
+
+        for index, step in enumerate(fallback_steps, start=1):
+            st.write(f"**{index}.** {step}")
+
+
+# Dropdown-only selection displays the original guidance
+else:
+
+    if problem == "Money debited, receiver not credited":
+
+        st.subheader(result["title"])
+
+        for index, step in enumerate(
+            result["recipients"][recipient_type], start=1
+        ):
+            st.write(f"**{index}.** {step}")
+
+    else:
+
+        st.subheader(result["title"])
+
+        for index, step in enumerate(result["steps"], start=1):
+            st.write(f"**{index}.** {step}")
