@@ -36,7 +36,7 @@ def ask_gemini(question, context):
     )
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.8-flash",
         contents=build_prompt(question, context)
     )
 
