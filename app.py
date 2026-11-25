@@ -142,13 +142,20 @@ elif question.strip() and best_match is not None:
                 context
             )
 
-        st.write(answer)
+                st.write(answer)
 
         st.caption(
             "AI-generated using retrieved UPI guidance. "
             "Please verify important actions with your bank or UPI app."
         )
 
+        # Display reference links from the retrieved knowledge-base record
+        sources = best_match.get("sources", [])
+
+        if sources:
+            with st.expander("📚 Reference sources"):
+                for source in sources:
+                    st.markdown(f"- [Official reference]({source})")
     except Exception as error:
 
         st.warning(
