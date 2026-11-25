@@ -58,7 +58,7 @@ Give one natural, conversational answer.
 """
 
     response = client.responses.create(
-        model="gpt-4.1-mini",
+        model="model="gpt-6.1-terra",
         input=prompt
     )
     return response.output_text
@@ -87,7 +87,7 @@ Give one natural, conversational answer.
 """
 
     response = client.messages.create(
-        model="claude-3-5-haiku-latest",
+        model="model="claude-sonnet-5-5",
         max_tokens=500,
         messages=[
             {"role": "user", "content": prompt}
