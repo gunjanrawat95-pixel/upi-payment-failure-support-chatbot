@@ -3,5 +3,4 @@ pytest
 sentence-transformers==5.1.1
 faiss-cpu
 google-genai>=1.0.0
-openai
-anthropic
+groq
