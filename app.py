@@ -3,7 +3,7 @@ import streamlit as st
 
 from guidance import get_guidance
 from semantic_search import semantic_search
-from llm_providers import ask_gemini
+from llm_providers import generate_answer
 
 
 st.set_page_config(
@@ -14,198 +14,122 @@ st.set_page_config(
 
 st.title("💳 UPI Resolution Navigator")
 
-st.markdown(
-    """
-    Find clear next steps for common UPI payment problems.
-
-    Describe your payment issue and get guidance from the UPI Support Assistant.
-    """
+st.write(
+    "Get practical guidance for common UPI payment problems."
 )
-
-st.caption(
-    "Prototype • General guidance only • No access to live bank transactions"
-)
-
-st.divider()
 
 st.info(
-    "This app provides general guidance. "
-    "It cannot check your actual bank or UPI transaction status."
+    "This tool provides general information. "
+    "It cannot check your bank transaction or guarantee a refund."
+)
+
+provider = st.selectbox(
+    "Choose your AI model",
+    ["Gemini", "Groq"]
 )
 
 problem = st.selectbox(
-    "What happened to your payment?",
+    "Select your payment problem",
     [
-        "Payment is pending",
+        "Select a problem",
+        "Payment pending",
         "Payment failed",
-        "Money debited, receiver not credited",
+        "Money debited but receiver not credited",
         "Possible duplicate payment",
         "Suspected fraud"
     ]
 )
 
-st.divider()
-
-st.subheader("Describe your payment problem")
-
 question = st.text_input(
-    "What happened?",
-    placeholder="e.g. My account was charged but the shop didn't receive the money"
+    "Describe your problem",
+    placeholder="Example: I paid a shopkeeper but they did not receive the money."
 )
 
-best_match = None
-result = None
-recipient_type = None
+if st.button("Get support", type="primary"):
 
-# Retrieve relevant guidance for typed questions
-if question.strip():
-
-    results = semantic_search(question, top_k=1)
-
-    if results:
-        best_match = results[0]
-        problem = best_match["category"]
-
-        st.caption(
-            f"Identified issue: {best_match['title']}"
-        )
-
-        result = get_guidance(problem)
+    if problem == "Select a problem" and not question.strip():
+        st.warning("Please select a problem or enter your question.")
 
     else:
-        problem = None
+        try:
+            search_question = question.strip()
 
-        st.warning(
-            "I couldn't confidently find matching UPI guidance. "
-            "Please describe the issue differently or select a scenario."
-        )
+            if not search_question:
+                search_question = problem
 
-else:
-    result = get_guidance(problem)
+            with st.spinner("Finding relevant UPI guidance..."):
 
+                results = semantic_search(
+                    search_question,
+                    top_k=1
+                )
 
-if problem is None:
-    st.stop()
+                if not results:
+                    st.warning("No matching guidance found. Please try another description.")
+                    st.stop()
 
+                best_match = results[0]
 
-if result is None:
-    st.info("Guidance for this situation is coming next.")
-    st.stop()
+                if isinstance(best_match, tuple):
+                    best_match = best_match[0]
 
+                if isinstance(best_match, dict):
+                    context = best_match.get("content", "")
+                else:
+                    context = str(best_match)
 
-# Collect recipient type for merchant-related problems
-if problem == "Money debited, receiver not credited":
+                scenario_guidance = ""
 
-    recipient_type = st.radio(
-        "Who were you paying?",
-        ["A merchant or shop", "Another person"]
-    )
+                if problem != "Select a problem":
+                    scenario_guidance = get_guidance(problem)
 
-
-# Display urgent fraud guidance independently of Gemini
-if problem == "Suspected fraud":
-
-    st.error(result["title"])
-
-    for index, step in enumerate(result["steps"], start=1):
-        st.write(f"**{index}.** {step}")
-
-    st.markdown(
-        "[Report suspected cybercrime at the official Indian portal](https://cybercrime.gov.in/)"
-    )
-
-    st.markdown("**Cyber financial fraud helpline: 1930**")
-
-
-# Generate one integrated conversational answer
-elif question.strip() and best_match is not None:
-
-    st.divider()
-
-    st.subheader("🤖 UPI Support Assistant")
-
-    context = best_match["content"]
-
-    if problem == "Money debited, receiver not credited":
-
-        context += "\n\nAdditional recipient-specific guidance:\n"
-
-        context += "\n".join(
-            result["recipients"][recipient_type]
-        )
-
-    else:
-
-        context += "\n\nAdditional troubleshooting guidance:\n"
-
-        context += "\n".join(result["steps"])
-
-    try:
-
-        with st.spinner("Preparing your guidance..."):
-
-            answer = ask_gemini(
-                question,
-                context
-            )
-
-        st.write(answer)
-
-        st.caption(
-            "AI-generated using retrieved UPI guidance. "
-            "Please verify important actions with your bank or UPI app."
-        )
-
-        # Display reference links from the retrieved record
-        sources = best_match.get("sources", [])
-
-        if sources:
-
-            with st.expander("📚 Reference sources"):
-
-                for source in sources:
-                    st.markdown(
-                        f"- [Official reference]({source})"
+                if scenario_guidance:
+                    context += (
+                        "\n\nAdditional scenario guidance:\n"
+                        + str(scenario_guidance)
                     )
 
-    except Exception as error:
+            st.subheader("Relevant knowledge")
 
-        st.warning(
-            "The AI assistant is temporarily unavailable. "
-            "Here are the available troubleshooting steps instead."
-        )
+            if isinstance(best_match, dict):
+                st.write(
+                    best_match.get("title", "Relevant UPI guidance")
+                )
 
-        st.caption(
-            f"Technical detail: {type(error).__name__}: {error}"
-        )
+            if problem == "Suspected fraud":
+                st.error(
+                    "If you suspect UPI fraud, contact your bank "
+                    "immediately. In India, call 1930 and report at "
+                    "https://cybercrime.gov.in/."
+                )
 
-        if problem == "Money debited, receiver not credited":
+            with st.spinner(f"Generating answer using {provider}..."):
 
-            fallback_steps = result["recipients"][recipient_type]
+                answer = generate_answer(
+                    provider,
+                    search_question,
+                    context
+                )
 
-        else:
+            st.subheader("Your UPI support answer")
+            st.write(answer)
 
-            fallback_steps = result["steps"]
+            sources = (
+                best_match.get("sources", [])
+                if isinstance(best_match, dict)
+                else []
+            )
 
-        for index, step in enumerate(fallback_steps, start=1):
-            st.write(f"**{index}.** {step}")
+            if sources:
+                with st.expander("📚 Reference sources"):
+                    for source in sources:
+                        st.markdown(
+                            f"- [Official reference]({source})"
+                        )
 
-
-# Display original guidance when user selects a dropdown option
-else:
-
-    if problem == "Money debited, receiver not credited":
-
-        st.subheader(result["title"])
-
-        for index, step in enumerate(
-            result["recipients"][recipient_type], start=1
-        ):
-            st.write(f"**{index}.** {step}")
-
-    else:
-
-        st.subheader(result["title"])
-
-        for index, step in enumerate(result["steps"], start=1):
-            st.write(f"**{index}.** {step}")
+        except Exception as error:
+            st.error(str(error))
+            st.info(
+                "Check your API key, model availability, "
+                "free-tier quota and deployment logs."
+            )
