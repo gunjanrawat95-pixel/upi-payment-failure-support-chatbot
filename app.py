@@ -57,6 +57,7 @@ best_match = None
 result = None
 recipient_type = None
 
+# Retrieve relevant guidance for typed questions
 if question.strip():
 
     results = semantic_search(question, top_k=1)
@@ -73,9 +74,10 @@ if question.strip():
 
     else:
         problem = None
+
         st.warning(
             "I couldn't confidently find matching UPI guidance. "
-            "Please describe the issue differently or select a scenario below."
+            "Please describe the issue differently or select a scenario."
         )
 
 else:
@@ -100,7 +102,7 @@ if problem == "Money debited, receiver not credited":
     )
 
 
-# Fraud guidance is displayed immediately and independently of AI
+# Display urgent fraud guidance independently of Gemini
 if problem == "Suspected fraud":
 
     st.error(result["title"])
@@ -115,7 +117,7 @@ if problem == "Suspected fraud":
     st.markdown("**Cyber financial fraud helpline: 1930**")
 
 
-# For typed questions, provide one integrated conversational answer
+# Generate one integrated conversational answer
 elif question.strip() and best_match is not None:
 
     st.divider()
@@ -125,12 +127,17 @@ elif question.strip() and best_match is not None:
     context = best_match["content"]
 
     if problem == "Money debited, receiver not credited":
+
         context += "\n\nAdditional recipient-specific guidance:\n"
+
         context += "\n".join(
             result["recipients"][recipient_type]
         )
+
     else:
+
         context += "\n\nAdditional troubleshooting guidance:\n"
+
         context += "\n".join(result["steps"])
 
     try:
@@ -142,20 +149,25 @@ elif question.strip() and best_match is not None:
                 context
             )
 
-                st.write(answer)
+        st.write(answer)
 
         st.caption(
             "AI-generated using retrieved UPI guidance. "
             "Please verify important actions with your bank or UPI app."
         )
 
-        # Display reference links from the retrieved knowledge-base record
+        # Display reference links from the retrieved record
         sources = best_match.get("sources", [])
 
         if sources:
+
             with st.expander("📚 Reference sources"):
+
                 for source in sources:
-                    st.markdown(f"- [Official reference]({source})")
+                    st.markdown(
+                        f"- [Official reference]({source})"
+                    )
+
     except Exception as error:
 
         st.warning(
@@ -168,15 +180,18 @@ elif question.strip() and best_match is not None:
         )
 
         if problem == "Money debited, receiver not credited":
+
             fallback_steps = result["recipients"][recipient_type]
+
         else:
+
             fallback_steps = result["steps"]
 
         for index, step in enumerate(fallback_steps, start=1):
             st.write(f"**{index}.** {step}")
 
 
-# Dropdown-only selection displays the original guidance
+# Display original guidance when user selects a dropdown option
 else:
 
     if problem == "Money debited, receiver not credited":
