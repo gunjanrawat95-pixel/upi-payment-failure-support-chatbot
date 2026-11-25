@@ -1,3 +1,6 @@
+## 🌐 Live Demo
+
+Try the UPI Resolution Navigator: [Open App](https://upi-payment-failure-support-chatbot-u4skiz5zhayxmeepknfdfs.streamlit.app/)
 # 💳 UPI Resolution Navigator
 
 An AI-powered UPI payment support chatbot that helps users understand and troubleshoot common UPI payment failures using Retrieval-Augmented Generation (RAG).
